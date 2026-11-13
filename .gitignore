@@ -1,4 +1,5 @@
 /*
 !/.gitignore
+!/vercel.json
 !/Experimento /
 .DS_Store
