@@ -206,8 +206,9 @@
   .side-close{border:0;background:var(--g100);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.2rem;line-height:1;color:var(--black)}
   .side-close:hover{background:var(--g200)}
   .side-body{overflow-y:auto;padding:16px;background:var(--g100);flex:1}
-  .side-body img{display:block;width:100%;height:auto;border-radius:12px}
-  .side-sec{margin-top:16px;background:var(--white);border:1px solid var(--g200);border-radius:12px;padding:16px}
+  .side-body img{display:block;width:100%;height:auto;border-radius:8px}
+  .side-sec+.side-sec{margin-top:16px}
+  .side-sec{background:var(--white);border:1px solid var(--g200);border-radius:12px;padding:16px}
   .side-sec h3{font-size:.95rem;margin-bottom:12px}
   .side-links{display:flex;gap:8px;flex-wrap:wrap}
   .side-link{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid var(--g300);
@@ -369,7 +370,10 @@
     <button class="side-close" onclick="closeInfo()" aria-label="Cerrar">×</button>
   </div>
   <div class="side-body">
-    <img src="./info/mapa-navegacion.png" alt="Mapa de navegación: de la decisión inicial al informe en PDF, pasando por onboarding, menú de juegos y Gracias.">
+    <section class="side-sec">
+      <h3>Mapa de navegación</h3>
+      <img src="./info/mapa-navegacion.png" alt="Mapa de navegación: de la decisión inicial al informe en PDF, pasando por onboarding, menú de juegos y Gracias.">
+    </section>
     <section class="side-sec">
       <h3>Ejemplo de informe</h3>
       <div class="side-links">
