@@ -1,6 +1,6 @@
 {
   "framework": null,
   "installCommand": "",
-  "buildCommand": "mkdir -p public && cp \"Experimento /Simulación/apuesta-apostar.html\" public/index.html",
+  "buildCommand": "mkdir -p public && cp \"Experimento /Simulación/apuesta-apostar.html\" public/index.html && cp \"Experimento /Simulación/mapa-navegacion.png\" public/",
   "outputDirectory": "public"
 }
