@@ -246,9 +246,9 @@
   <div class="card">
     <h1>¿Te gustaría apostar lo que ganaste por participar?</h1>
     <p>Podés perder o ganar.</p>
-    <div class="actions">
-      <button class="btn btn-choice" onclick="decide('rechazo')">Rechazar</button>
-      <button class="btn btn-choice" onclick="decide('acepto')">Aceptar</button>
+    <div class="actions" id="choices">
+      <button class="btn btn-choice" data-d="rechazo" onclick="decide('rechazo')">Rechazar</button>
+      <button class="btn btn-choice" data-d="acepto" onclick="decide('acepto')">Aceptar</button>
     </div>
     <div class="balance"><small>Saldo total</small><strong>$100</strong></div>
   </div>
@@ -1145,9 +1145,23 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     cierre:null, tFin:null
   };
   const NOMBRES={ruleta:'Ruleta',dados:'Dados',rasca:'Rasca y gana'};
+  /* Orden de los botones al azar (se registra) */
+  (function(){
+    const box=document.getElementById('choices');
+    if(Math.random()<.5) box.appendChild(box.firstElementChild);
+    S.ordenBotones=[...box.children].map(b=>b.dataset.d);
+  })();
+  /* Duda: si el puntero pasó por el botón que NO eligió antes de decidir.
+     Solo medible con mouse/lápiz; en pantallas táctiles no hay hover. */
+  const PASO={acepto:false,rechazo:false}; let hayPuntero=false;
+  document.querySelectorAll('#choices .btn-choice').forEach(b=>b.addEventListener('pointerenter',e=>{
+    if(S.decision||e.pointerType==='touch') return;
+    hayPuntero=true; PASO[b.dataset.d]=true;
+  }));
   function decide(d){
     if(S.decision) return;
     S.decision=d; S.tDecision=now();
+    S.dudo = hayPuntero ? PASO[d==='acepto'?'rechazo':'acepto'] : null;
     if(d==='rechazo') endSession('rechazo'); else startOnboarding();
   }
   function onScreen(id){
@@ -1169,6 +1183,8 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     const NOM={pregunta:'decisión',onboarding:'onboarding',menu:'menú',ruleta:'ruleta',dados:'dados',rasca:'rasca'};
     return a.length+(a.length===1?' vez':' veces')+' ('+[...new Set(a.map(x=>NOM[x.pantalla]||x.pantalla))].join(', ')+')';
   }
+  function ordenTexto(){ return S.ordenBotones.map(d=>d==='acepto'?'Aceptar':'Rechazar').join(' | '); }
+  function dudoTexto(){ return S.dudo==null?'No medible (pantalla táctil)':(S.dudo?'Sí (pasó por la otra opción)':'No'); }
   function sinFichasMs(){ return S.tSinFichas==null||S.tFin==null ? null : S.tFin-S.tSinFichas; }
   function intentosTexto(){ const e=Object.entries(S.intentosSinFichas); if(!e.length) return 'Ninguno'; return e.map(([j,n])=>j+' ×'+n).join(', '); }
   function temaTexto(){
@@ -1247,7 +1263,9 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     h+='<section class="rsec"><h3><i>1</i>Sesión</h3>'+kv([['ID',S.id],['Tema',temaTexto()],['Abrió la info',infoTexto()]])+'</section>';
     h+='<section class="rsec"><h3><i>2</i>Decisión inicial</h3>'+kv([
         ['Decisión', ac?'Aceptó apostar':'Rechazó apostar'],
-        ['Tiempo en decidir', seg(S.tDecision)]
+        ['Tiempo en decidir', seg(S.tDecision)],
+        ['Orden de botones', ordenTexto()],
+        ['Dudó', dudoTexto()]
       ])+'</section>';
 
     if(!ac){
@@ -1302,7 +1320,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     document.getElementById('report').innerHTML=h;
   }
   function exportData(){
-    const base={id:S.id,inicio:S.inicio,modo:PARTICIPANTE?'participante':'demo',tema:temaExport(),infoAbierta:S.infoAbierta,decision:S.decision,tiempoDecisionMs:S.tDecision};
+    const base={id:S.id,inicio:S.inicio,modo:PARTICIPANTE?'participante':'demo',tema:temaExport(),infoAbierta:S.infoAbierta,decision:S.decision,tiempoDecisionMs:S.tDecision,ordenBotones:S.ordenBotones,dudo:S.dudo};
     if(S.decision!=='acepto') return base;
     const m=metrics();
     return {...base,
@@ -1393,6 +1411,8 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     section(2,'Decisión inicial');
     row('Decisión',ac?'Aceptó apostar':'Rechazó apostar');
     row('Tiempo en decidir',seg(S.tDecision));
+    row('Orden de botones',ordenTexto());
+    row('Dudó',dudoTexto());
 
     if(!ac){
       note('La sesión terminó en la decisión inicial: no hay datos de menú, juego ni cierre.');
